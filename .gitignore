@@ -2,7 +2,7 @@
 *.Identifier
 *.zip
 
-./ETC
-./__pycache__
-./Result_experiments/
-./*.ipynb
+ETC/
+__pycache__
+Result_experiments/
+*.ipynb
