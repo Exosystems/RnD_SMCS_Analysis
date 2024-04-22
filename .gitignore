@@ -1,0 +1,8 @@
+*.txt
+*.Identifier
+*.zip
+
+./ETC
+./__pycache__
+./Result_experiments/
+./*.ipynb
