@@ -87,6 +87,57 @@ def Loc(dir_path,person,lv,save_path,lim,save):
         plt.savefig(save_path+person+' M2D_'+str(lim[0][0])+'_'+str(lim[0][1])+'.png')
     return
 
+def Loc_sub(dir_path,person,part,lv, ax, lim):
+
+    EMGdict = {}
+    color = ['r','g','b']
+    num= 1
+    pad = ['Proximal2Distal', 'Medial2Lateral']
+
+    location = 'Location_'+str(lv)+'/'
+    path = dir_path+'/'+ person+'/'+part+'/'+location
+
+    for  i,file in  enumerate(sorted([x for x in os.listdir(path) if x.endswith('.txt') and '이후' not in x])):
+        n = i//3
+        
+        tmp = file.split('.txt')[0].split('_')
+        file_lines = [i.replace('\t', '-').split('-') for i in open(path+ file).readlines()]
+        
+        emg_raw = [int(i[2:]) for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        elect_raw = [int(i[:2] == '11') for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        emg_raw = np.array(emg_raw)
+        elect_raw = np.array(elect_raw)
+
+        elect_fixed = EraseDuplicatedElect(elect_raw)
+        # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+        idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+
+        emg_raw = np.array(emg_raw[idx[num]-50:idx[num]+400])
+        emg_raw = signal_mV(emg_raw,500)
+        elect_fixed = np.array(elect_fixed[idx[num]-50:idx[num]+400])
+
+        emg_hz = [[] for _ in range(6)]
+        RMS = [[] for _ in range(6)]
+        is_print_data_len = True
+        
+
+        ax[n].plot(emg_raw, color=color[i%3], label=str(i%3+1))
+
+        if len(tmp)>2:
+            EMGdict[tmp[2]] = tmp[2]
+        else:
+            EMGdict[tmp[0]] = tmp[0]
+            
+        ax[n].title.set_text(pad[n])
+        ax[n].set_xlim(lim[0][0],lim[0][1])
+        ax[n].set_ylim(lim[1][0],lim[1][1])
+        # ax[n].set_xlim(40,80)
+        # ax[n].set_ylabel('(mV)')
+        ax[n].legend()
+    return
+
 def Int(dir_path,person,save_path,save):
     
     location = 'Intensity/'
@@ -137,6 +188,50 @@ def Int(dir_path,person,save_path,save):
         plt.savefig(save_path+person+' Intensity'+'.png')
     # plt.show()
     return
+
+def Int_sub(dir_path,person,part, ax):
+    
+    location = 'Intensity/'
+    
+    path = dir_path+'/'+ person+'/'+part+'/'+location
+    print(path)
+    EMGdict = {}
+    color = ['r','g','b','k','#00A4E1','#00A52F','#FF7333']
+    Hz = [3,5,10,15,20,25,30]
+    for  i,file in  enumerate(sorted([x for x in os.listdir(path) if x.endswith('.txt') and '이후' not in x])):
+        
+        tmp = file.split('.txt')[0].split('_')
+        file_lines = [i.replace('\t', '-').split('-') for i in open(path+file).readlines()]
+        
+        emg_raw = [int(i[2:]) for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        elect_raw = [int(i[:2] == '11') for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        emg_raw = np.array(emg_raw)
+        elect_raw = np.array(elect_raw)
+
+        elect_fixed = EraseDuplicatedElect(elect_raw)
+        # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+        idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+
+        emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
+        emg_raw = signal_mV(emg_raw,500)
+        elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
+        elect_fixed = [x for x in elect_fixed]
+
+        emg_hz = [[] for _ in range(6)]
+        RMS = [[] for _ in range(6)]
+        is_print_data_len = True
+
+        ax.plot(emg_raw,  label=str(Hz[i])+' LV', color=color[i])
+        EMGdict[tmp[2]] = tmp[2]
+
+        ax.title.set_text('Intensity')
+        ax.legend()
+        ax.set_ylim(extend_y[0][0],extend_y[0][1])
+        ax.set_xlim(extend_x[0][0],extend_x[0][1])
+    
+    return
         
 def Ang(dir_path,person,save_path,save):
     
@@ -185,6 +280,48 @@ def Ang(dir_path,person,save_path,save):
     if save:
         plt.savefig(save_path+person+' Angle'+'.png')
     # plt.show()
+    return
+
+def Ang_sub(dir_path,person,part,lv, ax):
+    
+    location = 'Angle_'+str(lv)+'/'
+    
+    path = dir_path+'/'+ person+'/'+part+'/'+location
+    EMGdict = {}
+    color = ['r','g','b','k']
+    Hz = [0,90,180,270]
+    for  i,file in  enumerate(sorted([x for x in os.listdir(path) if x.endswith('.txt') and '이후' not in x])):
+        tmp = file.split('.txt')[0].split('_')
+        file_lines = [i.replace('\t', '-').split('-') for i in open(path+ file).readlines()]
+        
+        emg_raw = [int(i[2:]) for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        elect_raw = [int(i[:2] == '11') for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        emg_raw = np.array(emg_raw)
+        elect_raw = np.array(elect_raw)
+
+        elect_fixed = EraseDuplicatedElect(elect_raw)
+        # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+        idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+
+        emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
+        emg_raw = signal_mV(emg_raw,500)
+        elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
+        elect_fixed = [x for x in elect_fixed]
+
+        emg_hz = [[] for _ in range(6)]
+        RMS = [[] for _ in range(6)]
+        is_print_data_len = True
+
+        ax.plot(emg_raw,  label=str(Hz[i])+' °', color=color[i])
+        EMGdict[tmp[2]] = tmp[2]
+
+        ax.title.set_text('Angle_'+str(lv))
+        ax.legend()
+        ax.set_ylim(extend_y[0][0],extend_y[0][1])
+        ax.set_xlim(extend_x[0][0],extend_x[0][1])
+
     return
 
 def All(dir_path,location, person,save_path,save, col):
