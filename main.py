@@ -53,3 +53,4 @@ for person in people:
         Loc_sub('./Result_experiments/240418_intloc_' ,person,part,3, ax = [axs['f)'],axs['g)']],lim = [(0,500), (-3.5,3.5)])
 
         fig.canvas.manager.set_window_title(person+'_'+part) 
+plt.show()
