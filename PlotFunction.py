@@ -374,7 +374,7 @@ def All(dir_path,location, person,save_path,save, col):
     # plt.show()
     return
 
-def SIMPLE(dir, file, col):
+def SIMPLE(dir, file, num ,col):
     plt.figure()
     filename = dir+file+'.txt'
 
@@ -393,9 +393,14 @@ def SIMPLE(dir, file, col):
     # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
     idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
 
-    emg_raw = np.array(emg_raw)
-    emg_raw = signal_mV(emg_raw,500)
-    elect_fixed = np.array(elect_fixed)
+    if num > 1:
+        emg_raw = np.array(emg_raw)
+        emg_raw = signal_mV(emg_raw,500)
+        elect_fixed = np.array(elect_fixed)
+    else:
+        emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
+        emg_raw = signal_mV(emg_raw,500)
+        elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
 
     emg_hz = [[] for _ in range(6)]
     RMS = [[] for _ in range(6)]
@@ -408,3 +413,5 @@ def SIMPLE(dir, file, col):
     plt.legend()
     plt.ylim(-3.5,3.5)
     # plt.set_xlim(0,500)
+
+    return emg_raw

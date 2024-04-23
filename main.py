@@ -4,9 +4,29 @@ import numpy as np
 from scipy.signal import find_peaks
 
 from preprocessing import EraseDuplicatedElect, GetHzStartEndIdxByElec, GetHzStartEndIdxByEMG, signal_mV, calc_y
-from PlotFunction import Int_sub, Ang_sub, Loc_sub
+from PlotFunction import Int_sub, Ang_sub, Loc_sub, SIMPLE
 
+'''
+    Plot one signal
+    num_sig = 1   # 1 for one signal, over 1 for several signals
+'''
 
+dir = './Result_experiments/240418_intloc_/CHLOE/biceps/Angle_20/'
+file = 'Impulse_0_20240419183807_2_vastus medialis_right' 
+col = []
+num_sig = 1   # 1 for one signal, over 1 for several signals
+
+# %matplotlib tk
+emg_raw = SIMPLE(dir, file, 1 ,col)  
+
+a = [0]+[3 if emg_raw[i]-emg_raw[i-1]>0.1 else 0 for i in range(1,len(emg_raw))]
+start_idx = a.index(3)-1
+upper_peaks, _ = find_peaks(emg_raw, height=2)
+lower_peaks, _ = find_peaks([-x for x in emg_raw], height=0.5)
+
+plt.plot(start_idx, emg_raw[start_idx], "x")
+plt.plot(upper_peaks, emg_raw[upper_peaks], "x")
+plt.plot(lower_peaks, emg_raw[lower_peaks], "x")
 
 
 '''
