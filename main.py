@@ -5,6 +5,7 @@ from scipy.signal import find_peaks
 
 from preprocessing import EraseDuplicatedElect, GetHzStartEndIdxByElec, GetHzStartEndIdxByEMG, signal_mV, calc_y
 from PlotFunction import Int_sub, Ang_sub, Loc_sub, SIMPLE
+from FileloadFunction import load
 
 '''
     Plot one signal
@@ -54,3 +55,30 @@ for person in people:
 
         fig.canvas.manager.set_window_title(person+'_'+part) 
 plt.show()
+
+'''
+    Load whole signals in experiments as one dictionary data type
+'''
+dir_path = './Result_experiments/' + EX_name
+Whole_files = {}
+for person in people:
+    Whole_files[person] = {}
+    Parts = {}
+    for part in parts:
+        Parts[part] = {}
+        
+        Intensity = load(dir_path,person,part,'Intensity',0)
+            
+        Angle = {}
+        Angle[3] = load(dir_path,person,part,'Angle',3)
+        Angle[20] = load(dir_path,person,part,'Angle',20)
+        
+        Location = {}
+        Location[3] = load(dir_path,person,part,'Location',3)
+        Location[20] = load(dir_path,person,part,'Location',20)
+
+        Parts[part]['Intensity'] = Intensity
+        Parts[part]['Angle'] = Angle
+        Parts[part]['Location'] = Location
+
+    Whole_files[person] = Parts
