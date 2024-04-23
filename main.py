@@ -69,7 +69,8 @@ for person in people:
     for part in parts:
         Parts[part] = {}
         
-        Intensity = load(dir_path,person,part,'Intensity',0)
+        Intensity = {}
+        Intensity[0] = load(dir_path,person,part,'Intensity',0)
             
         Angle = {}
         Angle[3] = load(dir_path,person,part,'Angle',3)
@@ -95,15 +96,10 @@ for person in people:
     for part in parts:
         for ex_name in Whole_files[person][part].keys():
             for lv in Whole_files[person][part][ex_name].keys():
-                if ex_name == 'Intensity':
-                    data_list.append(Whole_files[person][part][ex_name][lv])
-                    data_name_list.append('_'.join([person,part, ex_name, str(lv)]))
-                    data_name_pd.append([person,part, ex_name, 0, lv])
-                else:
-                    for i in Whole_files[person][part][ex_name][lv].keys():
-                        data_list.append(Whole_files[person][part][ex_name][lv][i])
-                        data_name_list.append('_'.join([person,part, ex_name, str(lv),str(i)]))
-                        data_name_pd.append([person,part, ex_name, lv,i])
+                for i in Whole_files[person][part][ex_name][lv].keys():
+                    data_list.append(Whole_files[person][part][ex_name][lv][i])
+                    data_name_list.append('_'.join([person,part, ex_name, str(lv),str(i)]))
+                    data_name_pd.append([person,part, ex_name, lv,i])
 print(f'data_list shape: {np.shape(np.array(data_list))}')
 print(f'data_name_list shape: {np.shape(np.array(data_name_list))}')
 print(f'estimated data length: {6*3*(7+4*2+6*2)}')
