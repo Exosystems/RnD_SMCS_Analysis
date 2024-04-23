@@ -1,5 +1,6 @@
 import os
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
 from scipy.signal import find_peaks
 
@@ -55,6 +56,7 @@ for person in people:
 
         fig.canvas.manager.set_window_title(person+'_'+part) 
 plt.show()
+plt.close()
 
 '''
     Load whole signals in experiments as one dictionary data type
@@ -82,3 +84,28 @@ for person in people:
         Parts[part]['Location'] = Location
 
     Whole_files[person] = Parts
+
+'''
+    making dictionary data into list, pandas data type
+'''
+data_list = []
+data_name_list = []
+data_name_pd = []
+for person in people:
+    for part in parts:
+        for ex_name in Whole_files[person][part].keys():
+            for lv in Whole_files[person][part][ex_name].keys():
+                if ex_name == 'Intensity':
+                    data_list.append(Whole_files[person][part][ex_name][lv])
+                    data_name_list.append('_'.join([person,part, ex_name, str(lv)]))
+                    data_name_pd.append([person,part, ex_name, 0, lv])
+                else:
+                    for i in Whole_files[person][part][ex_name][lv].keys():
+                        data_list.append(Whole_files[person][part][ex_name][lv][i])
+                        data_name_list.append('_'.join([person,part, ex_name, str(lv),str(i)]))
+                        data_name_pd.append([person,part, ex_name, lv,i])
+print(f'data_list shape: {np.shape(np.array(data_list))}')
+print(f'data_name_list shape: {np.shape(np.array(data_name_list))}')
+print(f'estimated data length: {6*3*(7+4*2+6*2)}')
+data_name_pd = pd.DataFrame(data_name_pd,columns=['person','part','ex_name','lv','i'])
+print(data_name_pd.head())
