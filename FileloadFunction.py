@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 from preprocessing import EraseDuplicatedElect, GetHzStartEndIdxByElec, GetHzStartEndIdxByEMG, signal_mV, calc_y
 
 def load(dir_path,person,part,ex_name,lv):
@@ -17,7 +18,8 @@ def load(dir_path,person,part,ex_name,lv):
         key = [1,2,3,4,5,6]
     elif ex_name == 'Angle':
         key = [0,90,180,270]
-    dict_ = {}
+    dict_emg = {}
+    dict_elect = {}
     for  i,file in  enumerate(sorted([x for x in os.listdir(path) if x.endswith('.txt') and '이후' not in x])):
         tmp = file.split('.txt')[0].split('_')
         file_lines = [i.replace('\t', '-').split('-') for i in open(path+ file).readlines()]
@@ -36,6 +38,65 @@ def load(dir_path,person,part,ex_name,lv):
         emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
         emg_raw = signal_mV(emg_raw,500)
         elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
-        dict_[key[i]] = emg_raw
+        dict_emg[key[i]] = emg_raw
+        dict_elect[key[i]] = elect_fixed
 
-    return dict_
+    return dict_emg, dict_elect
+
+def load_listwdf(dir_path, people, parts):
+    data_dict = {}
+    data_dict_e = {}
+    for person in people:
+        Parts = {}
+        Parts_e = {}
+        for part in parts:
+            Parts[part] = {}
+            Parts_e[part] = {}
+            
+            Intensity = {}
+            Intensity_ = {}
+            Intensity[0], Intensity_[0] = load(dir_path,person,part,'Intensity',0)
+                
+            Angle = {}
+            Angle_ = {}
+            Angle[3], Angle_[3] = load(dir_path,person,part,'Angle',3)
+            Angle[20], Angle_[20] = load(dir_path,person,part,'Angle',20)
+            
+            Location = {}
+            Location_ = {}
+            Location[3], Location_[3] = load(dir_path,person,part,'Location',3)
+            Location[20], Location_[20] = load(dir_path,person,part,'Location',20)
+
+            Parts[part]['Intensity'] = Intensity
+            Parts[part]['Angle'] = Angle
+            Parts[part]['Location'] = Location
+
+            Parts_e[part]['Intensity'] = Intensity_
+            Parts_e[part]['Angle'] = Angle_
+            Parts_e[part]['Location'] = Location_
+
+        data_dict[person] = Parts
+        data_dict_e[person] = Parts_e
+
+
+    data_list = []
+    data_elist = []
+    data_name_list = []
+    data_name_df = []
+    for person in people:
+        for part in parts:
+            for ex_name in data_dict[person][part].keys():
+                for lv in data_dict[person][part][ex_name].keys():
+                    for i in data_dict[person][part][ex_name][lv].keys():
+                        # print(Whole_files[person][part][ex_name][lv][i].shape)
+                        data_list.append(data_dict[person][part][ex_name][lv][i])
+                        data_elist.append(data_dict_e[person][part][ex_name][lv][i])
+                        data_name_list.append('_'.join([person,part, ex_name, str(lv),str(i)]))
+                        data_name_df.append([person,part, ex_name, lv,i])
+                        # print('_'.join([person,part, ex_name, str(lv),str(i)]))
+    print(f'data_list shape: {np.shape(np.array(data_list))}')
+    print(f'data_name_list shape: {np.shape(np.array(data_name_list))}')
+    print(f'estimated data length: {6*3*(7+4*2+6*2)}')
+    data_name_df = pd.DataFrame(data_name_df,columns=['person','part','ex_name','lv','i'])
+
+    return data_dict, data_dict_e, data_list, data_elist, data_name_list, data_name_df
