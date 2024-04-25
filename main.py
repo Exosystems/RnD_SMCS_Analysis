@@ -6,7 +6,7 @@ from scipy.signal import find_peaks
 
 from preprocessing import EraseDuplicatedElect, GetHzStartEndIdxByElec, GetHzStartEndIdxByEMG, signal_mV, calc_y
 from PlotFunction import Int_sub, Ang_sub, Loc_sub, SIMPLE
-from FileloadFunction import load
+from FileloadFunction import load, load_listwdf
 
 '''
     Plot one signal
@@ -19,7 +19,7 @@ col = []
 num_sig = 1   # 1 for one signal, over 1 for several signals
 
 # %matplotlib tk
-emg_raw = SIMPLE([dir, file], 1 ,col)  
+emg_raw, emg_e = SIMPLE([dir, file], 1 ,col)  
 
 a = [0]+[3 if emg_raw[i]-emg_raw[i-1]>0.1 else 0 for i in range(1,len(emg_raw))]
 start_idx = a.index(3)-1
@@ -55,53 +55,13 @@ for person in people:
         Loc_sub('./Result_experiments/240418_intloc_' ,person,part,3, ax = [axs['f)'],axs['g)']],lim = [(0,500), (-3.5,3.5)])
 
         fig.canvas.manager.set_window_title(person+'_'+part) 
-plt.show()
-plt.close()
+# plt.close()
 
 '''
     Load whole signals in experiments as one dictionary data type
 '''
 dir_path = './Result_experiments/' + EX_name
-Whole_files = {}
-for person in people:
-    Whole_files[person] = {}
-    Parts = {}
-    for part in parts:
-        Parts[part] = {}
-        
-        Intensity = {}
-        Intensity[0] = load(dir_path,person,part,'Intensity',0)
-            
-        Angle = {}
-        Angle[3] = load(dir_path,person,part,'Angle',3)
-        Angle[20] = load(dir_path,person,part,'Angle',20)
-        
-        Location = {}
-        Location[3] = load(dir_path,person,part,'Location',3)
-        Location[20] = load(dir_path,person,part,'Location',20)
-
-        Parts[part]['Intensity'] = Intensity
-        Parts[part]['Angle'] = Angle
-        Parts[part]['Location'] = Location
-
-    Whole_files[person] = Parts
-
-'''
-    making dictionary data into list, pandas data type
-'''
-data_list = []
-data_name_list = []
-data_name_pd = []
-for person in people:
-    for part in parts:
-        for ex_name in Whole_files[person][part].keys():
-            for lv in Whole_files[person][part][ex_name].keys():
-                for i in Whole_files[person][part][ex_name][lv].keys():
-                    data_list.append(Whole_files[person][part][ex_name][lv][i])
-                    data_name_list.append('_'.join([person,part, ex_name, str(lv),str(i)]))
-                    data_name_pd.append([person,part, ex_name, lv,i])
-print(f'data_list shape: {np.shape(np.array(data_list))}')
-print(f'data_name_list shape: {np.shape(np.array(data_name_list))}')
-print(f'estimated data length: {6*3*(7+4*2+6*2)}')
-data_name_pd = pd.DataFrame(data_name_pd,columns=['person','part','ex_name','lv','i'])
+Whole_files, Whole_files_, data_list, data_elist, data_name_list, data_name_pd = load_listwdf(dir_path, people, parts)
 print(data_name_pd.head())
+
+plt.show()
