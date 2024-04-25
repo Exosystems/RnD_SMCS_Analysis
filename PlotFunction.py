@@ -374,44 +374,75 @@ def All(dir_path,location, person,save_path,save, col):
     # plt.show()
     return
 
-def SIMPLE(dir, file, num ,col):
+def SIMPLE(data, num ,col):
     plt.figure()
-    filename = dir+file+'.txt'
+    if type(data[0]) == type('str'):
+        dir, file = data
+        filename = dir+file+'.txt'
 
-    tmp = file.split('.txt')[0].split('_')
-    print(tmp[2])
-    file_lines = [i.replace('\t', '-').split('-') for i in open(filename).readlines()]
+        tmp = file.split('.txt')[0].split('_')
+        print(tmp[2])
+        tmp = tmp[2]+'_'+tmp[-1]
+        file_lines = [i.replace('\t', '-').split('-') for i in open(filename).readlines()]
 
-    emg_raw = [int(i[2:]) for 
-                        line in file_lines for i in line if i.strip().isdigit()]
-    elect_raw = [int(i[:2] == '11') for 
-                        line in file_lines for i in line if i.strip().isdigit()]
-    emg_raw = np.array(emg_raw)
-    elect_raw = np.array(elect_raw)
-
-    elect_fixed = EraseDuplicatedElect(elect_raw)
-    # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
-    idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
-
-    if num > 1:
+        emg_raw = [int(i[2:]) for 
+                            line in file_lines for i in line if i.strip().isdigit()]
+        elect_raw = [int(i[:2] == '11') for 
+                            line in file_lines for i in line if i.strip().isdigit()]
         emg_raw = np.array(emg_raw)
-        emg_raw = signal_mV(emg_raw,500)
-        elect_fixed = np.array(elect_fixed)
-    else:
-        emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
-        emg_raw = signal_mV(emg_raw,500)
-        elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
+        elect_raw = np.array(elect_raw)
 
-    emg_hz = [[] for _ in range(6)]
-    RMS = [[] for _ in range(6)]
-    is_print_data_len = True
-    if len(col)>0:
-        plt.plot(emg_raw,  label= tmp[2]+tmp[-1], color = col[i])
+        elect_fixed = EraseDuplicatedElect(elect_raw)
+        # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+        idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+
+        if num > 1:
+            emg_raw = np.array(emg_raw)
+            emg_raw = signal_mV(emg_raw,500)
+            elect_fixed = np.array(elect_fixed)
+        else:
+            emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
+            emg_raw = signal_mV(emg_raw,500)
+            elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
+
+        emg_hz = [[] for _ in range(6)]
+        RMS = [[] for _ in range(6)]
+        is_print_data_len = True
     else:
-        plt.plot(emg_raw,  label= tmp[2]+'_'+tmp[-1])
+        emg_raw, elect_fixed, tmp = data
+    if len(col)>0:
+        plt.plot(emg_raw,  label= tmp, color = col[i])
+    else:
+        plt.plot(emg_raw,  label= tmp)
     plt.title('SMCS with Impulse')
     plt.legend()
     plt.ylim(-3.5,3.5)
     # plt.set_xlim(0,500)
 
-    return emg_raw
+    return emg_raw, elect_fixed
+
+def plot_nxn(indexs, df, Whole_files):
+    n = len(indexs)
+    ro = int(np.ceil(np.sqrt(n )))
+    co = int(np.ceil((n)/ro))
+    fig, ax = plt.subplots(co,ro,figsize=(15,8))
+    i = 0
+
+    for i, key in enumerate(indexs):
+        r,c =  i%co, i//co
+
+        ax[r,c].title.set_text(df.iloc[key]['person']+'_'+
+                df.iloc[key]['part'] +'_'+ 
+                df.iloc[key]['ex_name']+ '_'+
+                str(df.iloc[key]['lv'])+'_'+
+                str(df.iloc[key]['i']))
+
+        data = Whole_files[
+            df.iloc[key]['person']][
+                df.iloc[key]['part']][
+                    df.iloc[key]['ex_name']][
+                        int(df.iloc[key]['lv'])][
+                            int(df.iloc[key]['i'])]
+        
+        ax[r,c].plot(data)
+    plt.show()

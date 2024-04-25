@@ -19,7 +19,7 @@ col = []
 num_sig = 1   # 1 for one signal, over 1 for several signals
 
 # %matplotlib tk
-emg_raw = SIMPLE(dir, file, 1 ,col)  
+emg_raw = SIMPLE([dir, file], 1 ,col)  
 
 a = [0]+[3 if emg_raw[i]-emg_raw[i-1]>0.1 else 0 for i in range(1,len(emg_raw))]
 start_idx = a.index(3)-1
