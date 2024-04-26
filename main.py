@@ -7,6 +7,7 @@ from scipy.signal import find_peaks
 from preprocessing import EraseDuplicatedElect, GetHzStartEndIdxByElec, GetHzStartEndIdxByEMG, signal_mV, calc_y
 from PlotFunction import Int_sub, Ang_sub, Loc_sub, SIMPLE
 from FileloadFunction import load, load_listwdf
+from AnaFunction import ana_result
 
 '''
     Plot one signal
@@ -63,5 +64,8 @@ for person in people:
 dir_path = './Result_experiments/' + EX_name
 Whole_files, Whole_files_, data_list, data_elist, data_name_list, data_name_pd = load_listwdf(dir_path, people, parts)
 print(data_name_pd.head())
+
+
+df_ana_copy = ana_result(data_list, data_elist, data_name_list)
 
 plt.show()

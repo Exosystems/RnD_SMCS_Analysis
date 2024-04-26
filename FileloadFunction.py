@@ -43,6 +43,23 @@ def load(dir_path,person,part,ex_name,lv):
 
     return dict_emg, dict_elect
 
+def load_whole_SMCS(dir, file):
+    file_lines = [i.replace('\n', '-').split('-') for i in open(dir+ file).readlines()]
+    emg_raw = [int(i)%1000 for 
+                        line in file_lines for i in line if i.strip().isdigit()]
+    elect_raw = [int(i)//1000 == 11 for 
+                        line in file_lines for i in line if i.strip().isdigit()]
+    emg_raw = np.array(emg_raw)
+    elect_raw = np.array(elect_raw)
+
+    elect_fixed = EraseDuplicatedElect(elect_raw)
+    # start_idx, end_idx = GetHzStartEndIdxByElec(isElec=elect_fixed)
+  
+    # emg_raw = np.array(emg_raw[idx[0]-50:idx[0]+400])
+    emg_raw = signal_mV(emg_raw,500)
+    # elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
+    return emg_raw, elect_fixed
+
 def load_listwdf(dir_path, people, parts):
     data_dict = {}
     data_dict_e = {}

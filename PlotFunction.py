@@ -374,8 +374,8 @@ def All(dir_path,location, person,save_path,save, col):
     # plt.show()
     return
 
-def SIMPLE(data, num ,col):
-    plt.figure()
+def SIMPLE(data, num ,col, figsize):
+    plt.figure(figsize=figsize)
     if type(data[0]) == type('str'):
         dir, file = data
         filename = dir+file+'.txt'
@@ -414,28 +414,28 @@ def SIMPLE(data, num ,col):
         plt.plot(emg_raw,  label= tmp, color = col[i])
     else:
         plt.plot(emg_raw,  label= tmp)
-    plt.title('SMCS with Impulse')
+    # plt.title('SMCS with Impulse')
     plt.legend()
     plt.ylim(-3.5,3.5)
     # plt.set_xlim(0,500)
 
     return emg_raw, elect_fixed
 
-def plot_nxn(indexs, df, Whole_files):
+def plot_nxn(indexs, df, Whole_files, name):
     n = len(indexs)
     ro = int(np.ceil(np.sqrt(n )))
     co = int(np.ceil((n)/ro))
-    fig, ax = plt.subplots(co,ro,figsize=(15,8))
+    fig, ax = plt.subplots(co,ro,figsize=(15,8), num = name)
     i = 0
 
     for i, key in enumerate(indexs):
         r,c =  i%co, i//co
 
-        ax[r,c].title.set_text(df.iloc[key]['person']+'_'+
-                df.iloc[key]['part'] +'_'+ 
-                df.iloc[key]['ex_name']+ '_'+
-                str(df.iloc[key]['lv'])+'_'+
-                str(df.iloc[key]['i']))
+        # ax[r,c].title.set_text(df.iloc[key]['person']+'_'+
+        #         df.iloc[key]['part'] +'_'+ 
+        #         df.iloc[key]['ex_name']+ '_'+
+        #         str(df.iloc[key]['lv'])+'_'+
+        #         str(df.iloc[key]['i']))
 
         data = Whole_files[
             df.iloc[key]['person']][
@@ -444,5 +444,9 @@ def plot_nxn(indexs, df, Whole_files):
                         int(df.iloc[key]['lv'])][
                             int(df.iloc[key]['i'])]
         
-        ax[r,c].plot(data)
+        ax[r,c].plot(data, label = df.iloc[key]['person']+'_'+
+                df.iloc[key]['part'] +'_'+ 
+                df.iloc[key]['ex_name']+ '_'+
+                str(df.iloc[key]['lv'])+'_'+
+                str(df.iloc[key]['i']))
     plt.show()
