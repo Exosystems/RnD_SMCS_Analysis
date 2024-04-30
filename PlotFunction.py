@@ -92,7 +92,7 @@ def Loc_sub(dir_path,person,part,lv, ax, lim):
     EMGdict = {}
     color = ['r','g','b']
     num= 1
-    pad = ['Proximal2Distal', 'Medial2Lateral']
+    pad = [str(lv)+'Lv Proximal2Distal', str(lv)+'Lv Medial2Lateral']
 
     location = 'Location_'+str(lv)+'/'
     path = dir_path+'/'+ person+'/'+part+'/'+location
@@ -317,7 +317,7 @@ def Ang_sub(dir_path,person,part,lv, ax):
         ax.plot(emg_raw,  label=str(Hz[i])+' °', color=color[i])
         EMGdict[tmp[2]] = tmp[2]
 
-        ax.title.set_text('Angle_'+str(lv))
+        ax.title.set_text(str(lv)+'Lv Angle')
         ax.legend()
         ax.set_ylim(extend_y[0][0],extend_y[0][1])
         ax.set_xlim(extend_x[0][0],extend_x[0][1])

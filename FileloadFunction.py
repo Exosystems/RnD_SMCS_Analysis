@@ -60,6 +60,15 @@ def load_whole_SMCS(dir, file):
     # elect_fixed = np.array(elect_fixed[idx[0]-50:idx[0]+400])
     return emg_raw, elect_fixed
 
+def load_EMG(dir, file):
+
+    file_lines = [i.replace('\n', '-').split(',') for i in open(dir+ file).readlines()]
+    emg_raw = [int(i)for 
+                        line in file_lines for i in line if i.strip().isdigit()]
+    emg_raw = np.array(emg_raw)
+    emg_raw = signal_mV(emg_raw,1100)
+    return emg_raw
+
 def load_listwdf(dir_path, people, parts):
     data_dict = {}
     data_dict_e = {}
