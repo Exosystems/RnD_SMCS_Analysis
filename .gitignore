@@ -5,4 +5,7 @@
 ETC/
 __pycache__
 Result_experiments/
-*.ipynb
+
+Analysis.ipynb
+Display.ipynb
+240430_loc5_stim1.ipynb
